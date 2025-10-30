@@ -5,18 +5,17 @@ import ru.alex3koval.docGenerator.domain.repository.contract.dto.BaseDocumentRDT
 import ru.alex3koval.docGenerator.domain.vo.DocumentFormat
 import java.time.LocalDateTime
 
-class DocumentRDTO<ID, FILE_ID, TEMPLATE_ID>(
-    val templateId: TEMPLATE_ID,
+class DocumentTemplateRDTO<ID: Any, FILE_ID>(
     override val id: ID,
-    val domainDto: BaseGeneratedDocDTO,
     override val clazz: String,
-    format: DocumentFormat,
+    val domainDto: BaseGeneratedDocDTO,
     fileId: FILE_ID,
+    format: DocumentFormat,
     createdAt: LocalDateTime,
     updatedAt: LocalDateTime
-) : BaseDocumentRDTO<ID, FILE_ID, TEMPLATE_ID>(
-    format = format,
+) : BaseDocumentRDTO<ID, FILE_ID, ID>(
     fileId = fileId,
+    format = format,
     createdAt = createdAt,
     updatedAt = updatedAt
 )

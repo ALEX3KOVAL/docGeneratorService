@@ -4,8 +4,7 @@ import ru.alex3koval.docGenerator.domain.repository.contract.dto.BaseCreateDocum
 import ru.alex3koval.docGenerator.domain.vo.DocumentFormat
 import java.time.LocalDateTime
 
-data class CreateDocumentWDTO<FILE_ID, TEMPLATE_ID>(
-    val templateId: TEMPLATE_ID,
+class CreateDocumentTemplateWDTO<FILE_ID>(
     override val jsonModel: String,
     override val fileId: FILE_ID,
     override val clazz: String,
