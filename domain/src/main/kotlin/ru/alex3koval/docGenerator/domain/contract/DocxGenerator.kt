@@ -3,7 +3,7 @@ package ru.alex3koval.docGenerator.domain.contract
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import org.apache.poi.xwpf.usermodel.XWPFRun
 
-abstract class DocxGenerator<R, T : BaseGeneratedDocDTO<R>> {
+abstract class DocxGenerator<T : BaseGeneratedDocDTO> {
     abstract val document: XWPFDocument
 
     abstract fun generate(): Result<XWPFDocument>
