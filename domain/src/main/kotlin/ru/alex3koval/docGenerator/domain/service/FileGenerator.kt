@@ -6,6 +6,6 @@ import java.io.InputStream
 import java.nio.file.Path
 
 interface FileGenerator<T> {
-    fun generateDocx(template: InputStream, data: BaseGeneratedDocDTO<T>): Mono<Path>
-    fun generatePdf(template: InputStream, data: BaseGeneratedDocDTO<T>): Mono<Path>
+    fun generateDocx(template: InputStream, data: BaseGeneratedDocDTO): Mono<Path>
+    fun generatePdf(template: InputStream, data: BaseGeneratedDocDTO): Mono<Path>
 }
