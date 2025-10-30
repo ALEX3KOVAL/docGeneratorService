@@ -6,9 +6,10 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Mono
 import ru.alex3koval.docGenerator.storage.entity.Document
 
-interface OrmDocumentRepository<T : Any, R> : ReactiveCrudRepository<Document<T, R>, T> {
+interface OrmDocumentRepository<ID : Any, FILE_ID, TEMPLATE_ID> :
+    ReactiveCrudRepository<Document<ID, FILE_ID, TEMPLATE_ID>, ID> {
     @Query("INSERT INTO document (model, format, created_at, updated_at) VALUES (:#{document.model}, :#{document.format}, :#{document.createdAt}, :#{document.updatedAt}) RETURNING *")
     fun saveWithReturning(
-        @Param("document") document: Document<T, R>
-    ): Mono<Document<T, R>>
+        @Param("document") document: Document<ID, FILE_ID, TEMPLATE_ID>
+    ): Mono<Document<ID, FILE_ID, TEMPLATE_ID>>
 }
