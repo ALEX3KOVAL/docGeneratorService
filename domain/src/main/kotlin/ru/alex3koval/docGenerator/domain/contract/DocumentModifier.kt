@@ -1,5 +1,5 @@
 package ru.alex3koval.docGenerator.domain.contract
 
-interface DocumentModifier<R, T : BaseGeneratedDocDTO<R>> {
-    fun modify(dto: T, generator: DocxGenerator<R, T>)
+interface DocumentModifier<R : Any, DTO : BaseGeneratedDocDTO> {
+    fun modify(dto: DTO, generator: DocxGenerator<DTO>)
 }
