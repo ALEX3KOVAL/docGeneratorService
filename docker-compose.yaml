@@ -1,0 +1,133 @@
+version: "3.9"
+
+networks:
+  alex3koval-local:
+    external: true
+
+services:
+  doc_generator_service:
+    container_name: doc_generator_service
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "10264:${APP_SERVER_PORT}"
+
+  event_producer_app:
+    container_name: event_producer_app
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    env_file:
+      - .env
+    build:
+      args:
+        APP_CDC_OFFSET_STORAGE_FILE_FILENAME: ${APP_CDC_OFFSET_STORAGE_FILE_FILENAME}
+        APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH: ${APP_CDC_OFFSET_STORAGE_FILE_FOLDER_PATH}
+      context: .
+      dockerfile: EventProducerApp.Dockerfile
+    depends_on:
+      - doc_generator_service_db
+
+  eventer_app:
+    container_name: eventer_app
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: EventerApp.Dockerfile
+    depends_on:
+      - doc_generator_service_db
+
+  doc_generator_service_db:
+    container_name: doc_generator_service_db
+    platform: linux/amd64
+    image: postgres:16
+    networks:
+      - alex3koval-local
+    env_file:
+      - ".env"
+    ports:
+      - "5438:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${APP_POSTGRES_DB}
+      POSTGRES_USER: ${APP_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${APP_POSTGRES_DB} -U ${APP_POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
+    restart: unless-stopped
+
+  doc_generator_migrator:
+    container_name: doc_generator_migrator
+    platform: linux/amd64
+    image: flyway/flyway:10.20.0-alpine
+    command: migrate
+    env_file:
+      - .env
+    environment:
+      FLYWAY_URL: ${APP_POSTGRES_JDBC_URL}
+      FLYWAY_USER: ${APP_POSTGRES_USER}
+      FLYWAY_PASSWORD: ${APP_POSTGRES_PASSWORD}
+      FLYWAY_OUT_OF_ORDER: true
+    volumes:
+      - ./migrations:/flyway/sql
+    networks:
+      - alex3koval-local
+
+  kafka:
+    container_name: kafka
+    platform: linux/amd64
+    networks:
+      - alex3koval-local
+    image: 'bitnami/kafka:3.7.0'
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,EXTERNAL_SAME_HOST://0.0.0.0:29092, CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092, EXTERNAL_SAME_HOST://localhost:29092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL_SAME_HOST:PLAINTEXT
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_KRAFT_CLUSTER_ID=S40B8iVtR0umuTyuM1eLjA
+      - KAFKA_CFG_NODE_ID=1
+    volumes:
+      - ./volume-kafka:/bitnami/kafka
+
+  kafka_ui:
+    image: provectuslabs/kafka-ui:v0.7.1
+    container_name: kafka_ui
+    platform: linux/amd64
+    ports:
+      - "10249:8080"
+    networks:
+      - alex3koval-local
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_NAME=kraft
+
+  unoconv_server:
+    platform: linux/amd64
+    networks:
+      - ost-local
+    environment:
+      SERVER_PORT: ${UNOCONV_PORT}
+    container_name: unoconv_server
+    build:
+      context: .
+      dockerfile: Unoconv.Dockerfile
