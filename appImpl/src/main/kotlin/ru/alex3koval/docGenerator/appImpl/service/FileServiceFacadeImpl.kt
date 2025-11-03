@@ -7,21 +7,18 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
+import ru.alex3koval.docGenerator.appImpl.core.extensions.buildByteArrayInputStream
 import ru.alex3koval.docGenerator.domain.service.FileServiceFacade
 import ru.alex3koval.docGenerator.domain.service.dto.UploadFileRequestDTO
+import java.io.InputStream
 
-class FileServiceFacadeImpl<T : Any>(
+class FileServiceFacadeImpl<ID : Any>(
     private val webClient: WebClient,
-    private val fileIdClazz: Class<T>
-) : FileServiceFacade<T> {
-    override fun uploadFile(dto: UploadFileRequestDTO): Mono<T> = webClient
+    private val fileIdClazz: Class<ID>
+) : FileServiceFacade<ID> {
+    override fun uploadFile(dto: UploadFileRequestDTO): Mono<ID> = webClient
         .post()
-        .uri { uriBuilder ->
-            uriBuilder
-                .path("file")
-                .build()
-        }
-        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .contentType(MediaType.APPLICATION_PDF)
         .header("X-Filename", dto.filename)
         .body(
             BodyInserters.fromDataBuffers(
@@ -31,11 +28,22 @@ class FileServiceFacadeImpl<T : Any>(
                         DefaultDataBufferFactory(),
                         65536
                     )
-                    .subscribeOn(Schedulers.boundedElastic())
             )
         )
         .retrieve()
         .bodyToMono(fileIdClazz)
         .doFinally { dto.stream.close() }
         .subscribeOn(Schedulers.boundedElastic())
+
+    override fun getFile(id: ID): Mono<InputStream> {
+        return webClient
+            .get()
+            .uri { uriBuilder ->
+                uriBuilder
+                    .queryParam("id", id)
+                    .build()
+            }
+            .accept(MediaType.APPLICATION_PDF)
+            .buildByteArrayInputStream()
+    }
 }
