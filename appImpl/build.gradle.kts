@@ -10,11 +10,14 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    loadEventingContractGithubPackage()
 }
 
 dependencies {
     implementation(project(":domain"))
 
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
+    implementation(libs.bundles.apache)
     implementation("org.springframework:spring-webflux")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
 

@@ -10,6 +10,7 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    loadEventingGithubPackages()
 }
 
 dependencies {
@@ -18,9 +19,8 @@ dependencies {
     implementation(project(":configuration"))
     implementation(project(":appImpl"))
 
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-
+    implementation("alex3koval:eventing-impl:latest.release")
+    implementation("alex3koval:eventing-contract:latest.release")
     implementation("io.github.resilience4j:resilience4j-reactor:2.2.0")
     implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
 
