@@ -5,6 +5,7 @@ import ru.alex3koval.docGenerator.domain.vo.DocumentFormat
 
 interface CreateDocumentCommand<T> : Command<T> {
     data class DTO<TEMPLATE_ID>(
+        val filename: String,
         val templateId: TEMPLATE_ID,
         val rawModel: Map<String, Any>,
         val format: DocumentFormat
