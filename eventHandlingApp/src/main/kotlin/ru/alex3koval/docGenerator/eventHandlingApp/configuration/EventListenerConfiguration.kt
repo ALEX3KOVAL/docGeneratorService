@@ -10,6 +10,6 @@ class EventListenerConfiguration {
     @Bean
     fun documentCreationHasBeenRequestedListener(
         commandFactory: CreateDocumentCommandFactory<ULong, *, ULong>
-    ): DocumentCreationHasBeenRequestedListener<ULong, ULong> =
+    ): DocumentCreationHasBeenRequestedListener<ULong> =
         DocumentCreationHasBeenRequestedListener(commandFactory = commandFactory)
 }
