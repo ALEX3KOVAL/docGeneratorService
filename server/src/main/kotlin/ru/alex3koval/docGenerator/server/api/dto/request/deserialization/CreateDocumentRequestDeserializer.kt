@@ -27,6 +27,7 @@ class CreateDocumentRequestDeserializer<T : Any>(
         }
 
         return CreateDocumentRequest(
+            filename = node.get("filename").asText(),
             templateId = node
                 .get("templateId")
                 ?.run { templateIdParser.apply(this) }
