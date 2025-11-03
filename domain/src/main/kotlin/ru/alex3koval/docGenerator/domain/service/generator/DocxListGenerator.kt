@@ -1,4 +1,4 @@
-package ru.alex3koval.docGenerator.domain.contract
+package ru.alex3koval.docGenerator.domain.service.generator
 
 import org.apache.poi.xwpf.usermodel.XWPFParagraph
 
