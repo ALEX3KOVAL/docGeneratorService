@@ -1,6 +1,7 @@
 package ru.alex3koval.docGenerator.appImpl.command
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import ru.alex3koval.docGenerator.domain.command.CreateDocumentCommand
@@ -11,7 +12,7 @@ import ru.alex3koval.docGenerator.domain.service.dto.UploadFileRequestDTO
 import ru.alex3koval.docGenerator.domain.service.generator.DocumentGenerator
 import ru.alex3koval.docGenerator.domain.vo.DocumentFormat
 
-class CreateDocumentCommandImpl<DOC_ID, FILE_ID, TEMPLATE_ID : Any>(
+open class CreateDocumentCommandImpl<DOC_ID, FILE_ID, TEMPLATE_ID : Any>(
     private val filename: String,
     private val templateId: TEMPLATE_ID,
     private val format: DocumentFormat,
@@ -21,6 +22,7 @@ class CreateDocumentCommandImpl<DOC_ID, FILE_ID, TEMPLATE_ID : Any>(
     private val fileServiceFacade: FileServiceFacade<FILE_ID>,
     private val objectMapper: ObjectMapper
 ) : CreateDocumentCommand<DOC_ID> {
+    @Transactional
     override fun execute(): Mono<DOC_ID> = documentService
         .getTemplate(templateId)
         .zipWhen { entity -> fileServiceFacade.getFile(id = entity.fileId) }

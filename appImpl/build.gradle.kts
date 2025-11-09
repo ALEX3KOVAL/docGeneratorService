@@ -18,6 +18,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
     implementation(libs.bundles.apache)
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework:spring-webflux")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
 
